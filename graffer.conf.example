@@ -1,0 +1,13 @@
+collect 1 = "/etc/scripts/1.sh" diff
+collect 2 = "/etc/scripts/2.sh" diff
+collect 3 = "/etc/scripts/3.sh" diff
+
+image "/var/www/htdocs/benzedrine.cx/pfstat.jpg" {
+	from 1 days to now
+	width 980 height 300
+	left
+		graph 1 bps "in" "bits/s" color 0 192 0 filled,
+		graph 2 bps "out" "bits/s" color 0 0 255
+	right
+		graph 3 "states" "entries" color 192 192 0
+}
