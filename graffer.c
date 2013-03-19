@@ -82,13 +82,28 @@ add_col(unsigned nr, const char *arg, int diff)
 	return (0);
 }
 
+double
+value_query(const char *arg) {
+	
+	char query_path[256], result[256], *end;
+	FILE *fp;
+
+	snprintf(query_path, sizeof(query_path), "%s", arg);
+	if ((fp = popen(query_path, "r")) == NULL)
+		return 0;
+	fgets(result, sizeof(result), fp);
+	pclose(fp);
+	return strtod(result, &end);
+}
+
 static void
-set_col(const char *arg, double val)
+set_col(unsigned nr, double val)
 {
 	int i;
 
 	for (i = 0; i < maxcol; ++i) {
-		cols[i].val = val;
+		if (cols[i].nr == nr)
+			cols[i].val = val;
 	}
 }
 
@@ -97,7 +112,7 @@ usage(void)
 {
 	extern char *__progname;
 
-	fprintf(stderr, "usage: %s [-v] [-c config] [-d data] [-r host[:port]] "
+	fprintf(stderr, "usage: %s [-v] [-c config] [-d data] "
 	    "[-p] [-q] [-t days[:days]] [-f file]\n", __progname);
 	exit(1);
 }
@@ -108,8 +123,6 @@ main(int argc, char *argv[])
 	const char *configfn = "./graffer.conf";
 	const char *datafn = "./graffer.db";
 	const char *fixfn = NULL;
-	const char *addr = NULL;
-	const char *serv = "9999";
 	int ch, query = 0, draw = 0, trunc = 0, i;
 	int days[2] = { 31, 365 };
 	struct matrix *matrices = NULL, *m;
@@ -132,23 +145,6 @@ main(int argc, char *argv[])
 		case 'q':
 			query = 1;
 			break;
-		case 'r': {
-			char *o, *p;
-
-			o = strdup(optarg);
-			if (!o) {
-				fprintf(stderr, "main: strdup: %s\n",
-				    strerror(errno));
-				return (1);
-			}
-			p = strchr(o, ':');
-			if (p != NULL) {
-				*p = 0;
-				serv = p + 1;
-			}
-			addr = o;
-			break;
-		}
 		case 't': {
 			char *o, *p;
 
@@ -202,9 +198,11 @@ main(int argc, char *argv[])
 
 		if (debug)
 			printf("querying values\n");
-		else {
-			if (debug > 0)
-				printf("querying local\n");
+
+		for (i = 0; i < maxcol; ++i) {
+			if (debug)
+				printf("set_col(%d, %s, %lf)\n", i, cols[i].arg,  value_query(cols[i].arg));
+			set_col(i + 1, value_query(cols[i].arg));
 		}
 
 		if (debug)

@@ -2,7 +2,7 @@ collect 1 = "/etc/scripts/1.sh" diff
 collect 2 = "/etc/scripts/2.sh" diff
 collect 3 = "/etc/scripts/3.sh" diff
 
-image "/var/www/htdocs/benzedrine.cx/pfstat.jpg" {
+image "./graffer.jpg" {
 	from 1 days to now
 	width 980 height 300
 	left
