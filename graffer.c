@@ -88,7 +88,11 @@ value_query(const char *arg) {
 	char query_path[256], result[256], *end;
 	FILE *fp;
 
+	if(debug)
+		printf("value_query - arg [%s]\n", arg);
 	snprintf(query_path, sizeof(query_path), "%s", arg);
+	if(debug)
+		printf("value_query - query_path [%s]\n", query_path);
 	if ((fp = popen(query_path, "r")) == NULL)
 		return 0;
 	fgets(result, sizeof(result), fp);
