@@ -1,13 +1,48 @@
-collect 1 = "/etc/scripts/1.sh" diff
-collect 2 = "/etc/scripts/2.sh" diff
-collect 3 = "/etc/scripts/3.sh" diff
+collect 1 = "/etc/graffer/scripts/freebsd/cpu.sh user"
+collect 2 = "/etc/graffer/scripts/freebsd/cpu.sh sys"
+collect 3 = "/etc/graffer/scripts/freebsd/disk.sh /dev/ad0 temp"
 
-image "./graffer.jpg" {
+image "./cpu-disk-temp-day-small.jpg" {
 	from 1 days to now
+	width 300 height 200
+	left
+		graph 1 "user cpu" "%" color 0 192 0,
+		graph 2 "system cpu" "%" color 0 0 255
+	right
+		graph 3 "/dev/ad0" "C" color 192 192 0
+}
+
+image "./cpu-disk-temp-day-large.jpg" {
+	from 1 day to now
 	width 980 height 300
 	left
-		graph 1 bps "in" "bits/s" color 0 192 0 filled,
-		graph 2 bps "out" "bits/s" color 0 0 255
+		graph 1 "user cpu" "%" color 0 192 0,
+		graph 2 "system cpu" "%" color 0 0 255
 	right
-		graph 3 "states" "entries" color 192 192 0
+		graph 3 "/dev/ad0" "C" color 192 192 0
+}
+
+collect 4 = "/etc/graffer/scripts/freebsd/netstat.sh sis0 in" diff
+collect 5 = "/etc/graffer/scripts/freebsd/netstat.sh sis0 out" diff
+collect 6 = "/etc/graffer/scripts/freebsd/swap.sh used"
+
+image "./sis0-day-small.jpg" {
+	from 24 hours to now
+	width 300 height 200
+	left
+		graph 4 bps "in" "bits/s" color 0 192 0 filled,
+		graph 5 bps "out" "bits/s" color 0 0 255
+	right
+		graph 6 "swap" "MB" color 0 192 255
+}
+
+
+image "./sis0-day-large.jpg" {
+	from 24 hours to now
+	width 980 height 300
+	left
+		graph 4 bps "in" "bits/s" color 0 192 0 filled,
+		graph 5 bps "out" "bits/s" color 0 0 255
+	right
+		graph 6 "swap" "MB" color 0 192 255
 }
