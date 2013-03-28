@@ -205,8 +205,8 @@ main(int argc, char *argv[])
 
 		for (i = 0; i < maxcol; ++i) {
 			if (debug)
-				printf("set_col(%d, %s, %lf)\n", i, cols[i].arg,  value_query(cols[i].arg));
-			set_col(i + 1, value_query(cols[i].arg));
+				printf("set_col(%d, %s, %lf)\n", cols[i].nr, cols[i].arg,  value_query(cols[i].arg));
+			set_col(cols[i].nr, value_query(cols[i].arg));
 		}
 
 		if (debug)
