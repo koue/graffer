@@ -1,8 +1,8 @@
 #!/bin/sh
 
-if  [ -f "../compaths.conf" ]
+if  [ -f "`dirname $0`/../compaths.conf" ]
 then
-        . ../compaths.conf
+        . `dirname $0`/../compaths.conf
 else
         echo 0
         exit
