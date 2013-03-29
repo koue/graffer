@@ -1,5 +1,3 @@
-/* $Id: graph.c,v 1.1.1.1 2007/01/11 16:01:58 dhartmei Exp $ */
-
 /*
  * Copyright (c) 2002-2006, Daniel Hartmeier
  * All rights reserved.
@@ -30,14 +28,11 @@
  *
  */
 
-static const char rcsid[] = "$Id: graph.c,v 1.1.1.1 2007/01/11 16:01:58 dhartmei Exp $";
-
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <net/if.h>
-#include <net/pfvar.h>
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>

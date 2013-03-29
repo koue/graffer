@@ -1,5 +1,3 @@
-/* $Id: data.c,v 1.3 2010/05/27 10:22:38 dhartmei Exp $ */
-
 /*
  * Copyright (c) 2002-2010, Daniel Hartmeier
  * All rights reserved.
@@ -29,8 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-static const char rcsid[] = "$Id: data.c,v 1.3 2010/05/27 10:22:38 dhartmei Exp $";
 
 #include <sys/types.h>
 #include <netinet/in.h>

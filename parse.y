@@ -30,7 +30,6 @@
  */
 
 %{
-static const char rcsid[] = "$Id: parse.y,v 1.1.1.1 2007/01/11 16:01:58 dhartmei Exp $";
 
 #include <sys/types.h>
 #include <ctype.h>
