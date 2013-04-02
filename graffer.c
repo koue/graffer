@@ -124,7 +124,7 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	const char *configfn = "/etc/graffer.conf";
+	const char *configfn = "/etc/graffer/graffer.conf";
 	const char *datafn = "/var/db/graffer.db";
 	const char *fixfn = NULL;
 	int ch, query = 0, draw = 0, trunc = 0, i;
