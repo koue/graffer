@@ -2,7 +2,7 @@ collect 1 = "/etc/graffer/scripts/freebsd/cpu.sh user"
 collect 2 = "/etc/graffer/scripts/freebsd/cpu.sh sys"
 collect 3 = "/etc/graffer/scripts/freebsd/disk.sh /dev/ad0 temp"
 
-image "./cpu-disk-temp-day-small.jpg" {
+image "/var/www/htdocs/cpu-disk-temp-day-small.jpg" {
 	from 1 days to now
 	width 300 height 200
 	left
@@ -12,7 +12,7 @@ image "./cpu-disk-temp-day-small.jpg" {
 		graph 3 "/dev/ad0" "C" color 192 192 0
 }
 
-image "./cpu-disk-temp-day-large.jpg" {
+image "/var/www/htdocs/cpu-disk-temp-day-large.jpg" {
 	from 1 day to now
 	width 980 height 300
 	left
@@ -26,7 +26,7 @@ collect 4 = "/etc/graffer/scripts/freebsd/netstat.sh sis0 in" diff
 collect 5 = "/etc/graffer/scripts/freebsd/netstat.sh sis0 out" diff
 collect 6 = "/etc/graffer/scripts/freebsd/swap.sh used"
 
-image "./sis0-day-small.jpg" {
+image "/var/www/htdocs/sis0-day-small.jpg" {
 	from 24 hours to now
 	width 300 height 200
 	left
@@ -37,7 +37,7 @@ image "./sis0-day-small.jpg" {
 }
 
 
-image "./sis0-day-large.jpg" {
+image "/var/www/htdocs/sis0-day-large.jpg" {
 	from 24 hours to now
 	width 980 height 300
 	left
