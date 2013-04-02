@@ -124,15 +124,15 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-	const char *configfn = "./graffer.conf";
-	const char *datafn = "./graffer.db";
+	const char *configfn = "/etc/graffer.conf";
+	const char *datafn = "/var/db/graffer.db";
 	const char *fixfn = NULL;
 	int ch, query = 0, draw = 0, trunc = 0, i;
 	int days[2] = { 31, 365 };
 	struct matrix *matrices = NULL, *m;
 	struct graph *g;
 
-	while ((ch = getopt(argc, argv, "c:d:f:pqr:t:v")) != -1) {
+	while ((ch = getopt(argc, argv, "c:d:f:pq:t:v")) != -1) {
 		switch (ch) {
 		case 'c':
 			configfn = optarg;
