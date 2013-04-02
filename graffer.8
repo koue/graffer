@@ -167,8 +167,8 @@ image "/var/www/htdocs/bandwidth.jpg" {
         right
                 graph 2 bps "out" "bits/s" color 0 0 255
 }
-collect 3 = "/usr/local/etc/graffer/scripts/freebsd/netstat.sh rl0 in" diff
-collect 4 = "/usr/local/etc/graffer/scripts/freebsd/disk.sh /dev/ad0 temp"
+collect 3 = "/etc/graffer/scripts/freebsd/netstat.sh rl0 in" diff
+collect 4 = "/etc/graffer/scripts/freebsd/disk.sh /dev/ad0 temp"
 image "/var/www/htdocs/rl0.jpg" {
 	from 12 months to now
 	width 800 height 200
