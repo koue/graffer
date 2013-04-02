@@ -132,7 +132,7 @@ main(int argc, char *argv[])
 	struct matrix *matrices = NULL, *m;
 	struct graph *g;
 
-	while ((ch = getopt(argc, argv, "c:d:f:pq:t:v")) != -1) {
+	while ((ch = getopt(argc, argv, "c:d:f:pqt:v")) != -1) {
 		switch (ch) {
 		case 'c':
 			configfn = optarg;
