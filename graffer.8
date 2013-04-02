@@ -1,0 +1,182 @@
+.\"
+.\" Copyright (c) 2002-2010 Daniel Hartmeier
+.\" Copyright (c) 2013 Nikola Kolev
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\"
+.\"    - Redistributions of source code must retain the above copyright
+.\"      notice, this list of conditions and the following disclaimer. 
+.\"    - Redistributions in binary form must reproduce the above
+.\"      copyright notice, this list of conditions and the following
+.\"      disclaimer in the documentation and/or other materials provided
+.\"      with the distribution. 
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+.\" FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+.\" COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+.\" BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+.\" LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+.\" CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+.\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\"
+.Dd April 2, 2013
+.Dt GRAFFER 8
+.Os
+.Sh NAME
+.Nm graffer
+.Nd collect numeric values and generate graphs
+.Sh SYNOPSIS
+.Nm graffer
+.Op Fl c Ar config
+.Op Fl d Ar database
+.Op Fl f Ar file
+.Op Fl q
+.Op Fl p
+.Op Fl t days[:days]
+.Sh DESCRIPTION
+The
+.Nm
+utility can collect numeric values from external programs 
+and produce graphs from the collected data.
+.Pp
+The options are as follows:
+.Bl -tag -width "-d database"
+.It Fl q
+Query the current values from described external programs  
+and store them in the database.
+This is usually done from a
+.Xr crontab 5
+like this:
+.Bd -literal
+* * * * * /usr/local/bin/graffer -q
+.Ed
+.Pp
+Note that without regular truncating (see below), the database
+will grow continually.
+.It Fl p
+Produce the configured set of graph images based on the statistics
+collected beforehand.
+.It Fl t Ar days:[days]
+Truncate the database, removing entries older than the specified number
+of days.
+The first value applies to uncompressed entries which constitute roughly
+90 percent of the database, the second value to compressed entries.
+Uncompressed entries are needed only for high-resolution graphs over
+short time periods.
+.Pp
+Assuming statistics are queried every I seconds, and a graph of width W
+pixels covering a time period of T seconds is generated, then
+uncompressed entries are only used when T/I < W*10.
+.Pp
+In other words, removing uncompressed entries earlier than compressed
+ones drastically reduces the database size.
+Graphs can be generated over the entire time range the compressed
+entries cover (monthly or yearly graphs), and high resolution graphs
+over short time periods in the recent past don't lose any precision.
+The precision is gradually lost for older periods.
+.Pp
+A typical invokation would be
+.Bd -literal
+graffer -t 31:365
+.Ed
+.Pp
+This removes uncompressed entries older than a month and compressed
+entries older than a year, allowing generation of graphs up to one
+year into the past, while keeping full precision for one month.
+.Pp
+Note that truncating the database does not usually shrink the size
+of the database file.
+Removed entries are only marked as deleted and their space is later
+reused for new entries.
+.It Fl f Ar file
+Copy the database into a new file, skipping removed and invalid
+entries.
+This operation takes longer than truncating, but produces a
+smaller database file.
+This can also be used to recover data from a corrupted database,
+indicated by the following error during truncating:
+.Bd -literal
+data_truncate: db->del() returned 1
+main: data_truncate() failed
+.Ed
+.It Fl c Ar config
+Use the specified configuration file instead of the default /etc/graffer.conf.
+Syntax:
+.Bd -literal
+collect = "collect" number = coldef .
+coldef  = ( "path to external program" ) [ "diff" ] .
+image   = "image" filename "{"
+              time type size [ left ] [ right ] "}" .
+time    = "from" number [ unit ] [ "to" number [ unit ] ] .
+unit    = "minutes" | "hours" | "days" | "weeks" | "months" |
+                      "years" .
+type	= "type" ( "jpeg" | "png" ) .
+size    = "width" number "height" number .
+left    = "left" graphs .
+right   = "right" graphs .
+graphs  = graph [ "," graphs ] .
+graph   = "graph" number [ "bps" ] [ "avg" | "min" | "max" ]
+                  label unit "color" red green blue [ "filled" ] .
+.Ed
+.Pp
+.Pa collect
+lines define what values to store in the database.
+Each definition should use a unique number, which is used
+in
+.Pa graph
+lines to reference those values.
+.Pp
+The
+.Pa diff
+option causes differential values (change of value per second)
+to be stored instead of absolute values.
+For example, storing interface byte counters (which count the
+number of bytes since last reset) differentially produces
+values representing current speed (bytes per second).
+.Pp
+Several images can be defined in the same config file.
+An image can include two independent y-axes, both of which auto-scale
+independently to the maximum value in the selected range.
+Each axis can display an arbitrary number of graphs.
+.Pp
+When the
+.Pa bps
+option is used, values are multiplied by eight, and the unit
+prefixes 'k' (kilo), 'm' (mega), etc. are multiples of 1024,
+instead of 1000.
+.It Fl d Ar database
+Database file.
+Default is /var/db/graffer.db.
+.Sh EXAMPLES
+.Bd -literal
+collect 1 = "/usr/local/bin/statgrab -u net.sis0.rx" diff
+collect 2 = "/usr/local/bin/statgrab -u net.sis0.tx" diff
+image "/var/www/htdocs/bandwidth.jpg" {
+        from 7 days to now
+        width 1000 height 400
+        left
+                graph 1 bps "in" "bits/s" color 0 192 0 filled
+        right
+                graph 2 bps "out" "bits/s" color 0 0 255
+}
+collect 3 = "/usr/local/etc/graffer/scripts/freebsd/netstat.sh rl0 in" diff
+collect 4 = "/usr/local/etc/graffer/scripts/freebsd/disk.sh /dev/ad0 temp"
+image "/var/www/htdocs/rl0.jpg" {
+	from 12 months to now
+	width 800 height 200
+	left
+		graph 3 bps "states" "entries" color 200 0 0 filled,
+	right
+		graph 4 "ad0" "temperature" color 0 0 255	
+}
+.Ed
+.Sh SEE ALSO
+.Xr crontab 5
