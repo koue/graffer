@@ -1,0 +1,31 @@
+The current directory contains graffer useful set of scripts.
+They are grouped by distribution name because I am not sure 
+that all of them will work correct on different operating system.
+The following scripts are just example how graffer can be used to
+collect data and it is not necessary to use them. 
+Everybody is welcome to add or edit scripts for his own needs.
+
+Configuration:
+
+	# sh setup.sh
+
+	Setup.sh will create compaths.conf file into the same directory.
+	It will contains PATHs of the command line programs which will be
+	used from the scripts.
+	Every script will load compaths.conf and will use described PATHs
+	for the program.
+
+How to use:
+
+	# ./freebsd/netstat.sh sis0 in
+	36664396
+
+	This command will return incoming traffic for network interface sis0
+	If compaths.conf is missing or parameters to netstat.sh are incorrect
+	it will return 0. For correct script syntax please check the current
+	script source.
+
+The scripts collection is useful but you can use any other external program
+to collect the necessary information. For example: http://www.i-scream.org/libstatgrab/.
+
+koue
