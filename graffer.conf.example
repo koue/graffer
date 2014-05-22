@@ -13,7 +13,7 @@ image "/var/www/htdocs/cpu-disk-temp-day-small.jpg" {
 }
 
 image "/var/www/htdocs/cpu-disk-temp-day-large.jpg" {
-	from 1 day to now
+	from 1 days to now
 	width 980 height 300
 	left
 		graph 1 "user cpu" "%" color 0 192 0,
