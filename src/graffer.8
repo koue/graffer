@@ -44,13 +44,13 @@
 .Sh DESCRIPTION
 The
 .Nm
-utility can collect numeric values from external programs 
+utility can collect numeric values from external programs
 and produce graphs from the collected data.
 .Pp
 The options are as follows:
 .Bl -tag -width "-d database"
 .It Fl q
-Query the current values from described external programs  
+Query the current values from described external programs
 and store them in the database.
 This is usually done from a
 .Xr crontab 5
@@ -159,7 +159,7 @@ Default is /var/db/graffer.db.
 .Bd -literal
 collect 1 = "/usr/local/bin/statgrab -u net.sis0.rx" diff
 collect 2 = "/usr/local/bin/statgrab -u net.sis0.tx" diff
-image "/var/www/htdocs/bandwidth.jpg" {
+image "/var/www/htdocs/bandwidth.png" {
         from 7 days to now
         width 1000 height 400
         left
@@ -169,13 +169,13 @@ image "/var/www/htdocs/bandwidth.jpg" {
 }
 collect 3 = "/etc/graffer/scripts/freebsd/netstat.sh rl0 in" diff
 collect 4 = "/etc/graffer/scripts/freebsd/disk.sh /dev/ad0 temp"
-image "/var/www/htdocs/rl0.jpg" {
+image "/var/www/htdocs/rl0.png" {
 	from 12 months to now
 	width 800 height 200
 	left
 		graph 3 bps "states" "entries" color 200 0 0 filled,
 	right
-		graph 4 "ad0" "temperature" color 0 0 255	
+		graph 4 "ad0" "temperature" color 0 0 255
 }
 .Ed
 .Sh SEE ALSO

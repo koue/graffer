@@ -12,7 +12,8 @@ make && make install
 
 ## Usage
 
-`graffer -c etc/graffer.conf.example`
+`graffer -q -c etc/graffer.conf.example`
+`graffer -p -c etc/graffer.conf.example`
 
 ## Status
 
