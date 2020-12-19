@@ -5,7 +5,6 @@ and produces graphs like mrtg, pfstat or alike.
 
 ### Requirements
 * png
-* freetype2
 
 ```
 make && make install

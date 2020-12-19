@@ -18,6 +18,6 @@ CFLAGS+=	-Wall \
 
 LDFLAGS+=	-L${LOCALBASE}/lib
 
-LDADD=		-lm -lpng -lz
+LDADD=		-lm -lpng
 
 .include <bsd.prog.mk>

@@ -14,8 +14,7 @@ USE_GITHUB=	yes
 GH_ACCOUNT=	koue
 GH_PROJECT=	graffer
 
-LIB_DEPENDS=	libpng.so:graphics/png \
-		libfreetype.so:print/freetype2
+LIB_DEPENDS=	libpng.so:graphics/png
 
 PLIST_FILES=	bin/graffer \
 		etc/graffer/graffer.conf.example \
