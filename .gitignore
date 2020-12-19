@@ -1,0 +1,11 @@
+*.a
+*.core
+*.debug
+*.depend
+*.full
+*.gz
+*.o
+*_test
+src/graffer
+src/parse.c
+src/parse.h

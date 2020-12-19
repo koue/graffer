@@ -7,7 +7,7 @@ SRCS=		graffer.c data.c graph.c parse.y
 
 .PATH:		${.CURDIR}/../contrib/gd
 SRCS+=		gd.c gd_io.c gdfonts.c gdfx.c gdhelpers.c gd_security.c \
-		gdtables.c gdft.c gd_png.c gd_io_dp.c gd_io_file.c gd_jpeg.c
+		gdtables.c gdft.c gd_png.c gd_io_dp.c gd_io_file.c
 
 MAN=		graffer.8
 
@@ -18,6 +18,6 @@ CFLAGS+=	-Wall \
 
 LDFLAGS+=	-L${LOCALBASE}/lib
 
-LDADD=		-lm -lpng -lz -ljpeg
+LDADD=		-lm -lpng -lz
 
 .include <bsd.prog.mk>

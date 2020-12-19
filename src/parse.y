@@ -1,6 +1,6 @@
 /*
+ * Copyright (c) 2013-2020 Nikola Kolev
  * Copyright (c) 2002-2006 Daniel Hartmeier
- * Copyright (c) 2013 Nikola Kolev
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -8,11 +8,11 @@
  * are met:
  *
  *    - Redistributions of source code must retain the above copyright
- *      notice, this list of conditions and the following disclaimer. 
+ *      notice, this list of conditions and the following disclaimer.
  *    - Redistributions in binary form must reproduce the above
  *      copyright notice, this list of conditions and the following
  *      disclaimer in the documentation and/or other materials provided
- *      with the distribution. 
+ *      with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -91,7 +91,7 @@ typedef struct {
 %}
 
 %token	ERROR IMAGE TIME MINUTES HOURS DAYS WEEKS MONTHS YEARS TO NOW
-%token	WIDTH HEIGHT LEFT RIGHT GRAPH COLOR FILLED TYPE JPEG PNG
+%token	WIDTH HEIGHT LEFT RIGHT GRAPH COLOR FILLED TYPE PNG
 %token	COLLECT DIFF BPS AVG MIN MAX
 %token	<v.string>	STRING
 %token	<v.number>	NUMBER
@@ -210,8 +210,7 @@ size		: /* empty */			{
 		;
 
 type		: /* empty */			{ $$ = 0; }
-		| TYPE JPEG			{ $$ = 0; }
-		| TYPE PNG 			{ $$ = 1; }
+		| TYPE PNG 			{ $$ = 0; }
 		;
 
 left		: /* empty */			{ $$.graph = NULL; }
@@ -304,7 +303,6 @@ lookup(char *s)
 		{ "height",	HEIGHT },
 		{ "hours",	HOURS },
 		{ "image",	IMAGE },
-		{ "jpeg",	JPEG },
 		{ "left",	LEFT },
 		{ "max",	MAX },
 		{ "min",	MIN },
