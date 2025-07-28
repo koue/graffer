@@ -14,9 +14,3 @@ make && make install
 
 `graffer -q -c etc/graffer.conf.example`
 `graffer -p -c etc/graffer.conf.example`
-
-## Status
-
-master | develop
--------|--------
-[![Build Status](https://cipier.net/status/koue/graffer/master)](https://cipier.net/status/koue/graffer/master) | [![Build Status](https://cipier.net/status/koue/graffer/develop)](https://cipier.net/status/koue/graffer/develop)

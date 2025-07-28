@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2002-2010, Daniel Hartmeier
- * Copyright (c) 2013, Nikola Kolev
+ * Copyright (c) 2013-2025, Nikola Kolev <koue@chaosophia.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -8,11 +8,11 @@
  * are met:
  *
  *    - Redistributions of source code must retain the above copyright
- *      notice, this list of conditions and the following disclaimer. 
+ *      notice, this list of conditions and the following disclaimer.
  *    - Redistributions in binary form must reproduce the above
  *      copyright notice, this list of conditions and the following
  *      disclaimer in the documentation and/or other materials provided
- *      with the distribution. 
+ *      with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -51,7 +51,8 @@ extern int	 parse_config(const char *, struct matrix **);
 struct col {
 	unsigned	 nr;
 	char		 arg[128];
-	int		 diff;
+	int		 tdiff;
+	int		 vdiff;
 	double		 val;
 } cols[512];
 
@@ -60,7 +61,7 @@ unsigned since = 0;
 int debug = 0;
 
 int
-add_col(unsigned nr, const char *arg, int diff)
+add_col(unsigned nr, const char *arg, int tdiff, int vdiff)
 {
 	int i;
 
@@ -77,7 +78,8 @@ add_col(unsigned nr, const char *arg, int diff)
 	}
 	cols[maxcol].nr = nr;
 	strlcpy(cols[maxcol].arg, arg, sizeof(cols[maxcol].arg));
-	cols[maxcol].diff = diff;
+	cols[maxcol].tdiff = tdiff;
+	cols[maxcol].vdiff = vdiff;
 	maxcol++;
 	return (0);
 }
@@ -213,7 +215,7 @@ main(int argc, char *argv[])
 			printf("storing values in database\n");
 		for (i = 0; i < maxcol; ++i)
 			if (data_put_value(since, time(NULL), cols[i].nr,
-			    cols[i].val, cols[i].diff)) {
+			    cols[i].val, cols[i].tdiff, cols[i].vdiff)) {
 				fprintf(stderr, "main: data_put_value() "
 				    "failed\n");
 				return (1);

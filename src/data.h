@@ -2,6 +2,7 @@
 
 /*
  * Copyright (c) 2002-2010 Daniel Hartmeier
+ * Copyright (c) 2025 Nikola Kolev <koue@chaosophia.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -9,11 +10,11 @@
  * are met:
  *
  *    - Redistributions of source code must retain the above copyright
- *      notice, this list of conditions and the following disclaimer. 
+ *      notice, this list of conditions and the following disclaimer.
  *    - Redistributions in binary form must reproduce the above
  *      copyright notice, this list of conditions and the following
  *      disclaimer in the documentation and/or other materials provided
- *      with the distribution. 
+ *      with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -40,7 +41,7 @@
 int	 data_open(const char *filename);
 int	 data_close();
 int	 data_put_value(unsigned since, unsigned ts, unsigned short unit,
-	    double val, int diff);
+	    double val, int tdiff, int vdiff);
 int	 data_get_values(unsigned short unit, unsigned beg, unsigned end,
 	    int type, unsigned siz, double *a);
 int	 data_truncate(unsigned days_detail, unsigned days_compressed);

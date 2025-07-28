@@ -1,6 +1,6 @@
 .\"
-.\" Copyright (c) 2013-2020 Nikola Kolev <koue@chaosophia.net>
 .\" Copyright (c) 2002-2010 Daniel Hartmeier
+.\" Copyright (c) 2013-2025 Nikola Kolev <koue@chaosophia.net>
 .\" All rights reserved.
 .\"
 .\" Redistribution and use in source and binary forms, with or without
@@ -112,7 +112,7 @@ Use the specified configuration file instead of the default /etc/graffer.conf.
 Syntax:
 .Bd -literal
 collect = "collect" number = coldef .
-coldef  = ( "path to external program" ) [ "diff" ] .
+coldef  = ( "path to external program" ) [ "tdiff" ] ["vdiff"].
 image   = "image" filename "{"
               time type size [ left ] [ right ] "}" .
 time    = "from" number [ unit ] [ "to" number [ unit ] ] .
@@ -135,7 +135,7 @@ in
 lines to reference those values.
 .Pp
 The
-.Pa diff
+.Pa tdiff
 option causes differential values (change of value per second)
 to be stored instead of absolute values.
 For example, storing interface byte counters (which count the
@@ -147,6 +147,13 @@ An image can include two independent y-axes, both of which auto-scale
 independently to the maximum value in the selected range.
 Each axis can display an arbitrary number of graphs.
 .Pp
+The
+.Pa vdiff
+option causes absolute differential values to be stored instead
+of absolute values.
+For example, storing interface packet counters (which count the
+number of packets since last reset).
+.Pp
 When the
 .Pa bps
 option is used, values are multiplied by eight, and the unit
@@ -157,8 +164,8 @@ Database file.
 Default is /var/db/graffer.db.
 .Sh EXAMPLES
 .Bd -literal
-collect 1 = "/usr/local/bin/statgrab -u net.sis0.rx" diff
-collect 2 = "/usr/local/bin/statgrab -u net.sis0.tx" diff
+collect 1 = "/usr/local/bin/statgrab -u net.sis0.rx" tdiff
+collect 2 = "/usr/local/bin/statgrab -u net.sis0.tx" tdiff
 image "/var/www/htdocs/bandwidth.png" {
         from 7 days to now
         width 1000 height 400
@@ -167,7 +174,7 @@ image "/var/www/htdocs/bandwidth.png" {
         right
                 graph 2 bps "out" "bits/s" color 0 0 255
 }
-collect 3 = "/etc/graffer/scripts/freebsd/netstat.sh rl0 in" diff
+collect 3 = "/etc/graffer/scripts/freebsd/netstat.sh rl0 in" tdiff
 collect 4 = "/etc/graffer/scripts/freebsd/disk.sh /dev/ad0 temp"
 image "/var/www/htdocs/rl0.png" {
 	from 12 months to now

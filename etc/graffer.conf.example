@@ -22,8 +22,8 @@ image "/var/www/htdocs/cpu-disk-temp-day-large.png" {
 		graph 3 "/dev/ad0" "C" color 192 192 0
 }
 
-collect 4 = "/etc/graffer/scripts/freebsd/netstat.sh sis0 in" diff
-collect 5 = "/etc/graffer/scripts/freebsd/netstat.sh sis0 out" diff
+collect 4 = "/etc/graffer/scripts/freebsd/netstat.sh sis0 in" tdiff
+collect 5 = "/etc/graffer/scripts/freebsd/netstat.sh sis0 out" tdiff
 collect 6 = "/etc/graffer/scripts/freebsd/swap.sh used"
 
 image "/var/www/htdocs/sis0-day-small.png" {

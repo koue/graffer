@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2002-2010, Daniel Hartmeier
+ * Copyright (c) 2025, Nikola Kolev <koue@chaosophia.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -7,11 +8,11 @@
  * are met:
  *
  *    - Redistributions of source code must retain the above copyright
- *      notice, this list of conditions and the following disclaimer. 
+ *      notice, this list of conditions and the following disclaimer.
  *    - Redistributions in binary form must reproduce the above
  *      copyright notice, this list of conditions and the following
  *      disclaimer in the documentation and/or other materials provided
- *      with the distribution. 
+ *      with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -316,12 +317,12 @@ put_last(unsigned short unit, unsigned since, unsigned ts, double val)
 
 int
 data_put_value(unsigned since, unsigned ts, unsigned short unit, double val,
-    int diff)
+    int tdiff, int vdiff)
 {
 	if (debug > 0)
 		printf("data_put_value(since %u, ts %u, unit %u, val %.2f, "
-		    "diff %d)\n", since, ts, (unsigned)unit, val, diff);
-	if (diff) {
+		    "tdiff %d vdiff %d)\n", since, ts, (unsigned)unit, val, tdiff, vdiff);
+	if (tdiff || vdiff) {
 		/* find previous value and ts, calculate diff per second */
 		int skip = 1;
 		unsigned last_since, last_ts;
@@ -333,7 +334,10 @@ data_put_value(unsigned since, unsigned ts, unsigned short unit, double val,
 		put_last(unit, since, ts, val);
 		if (skip)
 			return (0);
-		val = (val - last_val) / (ts - last_ts);
+		if (tdiff)
+			val = (val - last_val) / (ts - last_ts);
+		if (vdiff)
+			val = val - last_val;
 	}
 	return (put_value_internal(unit, 0, ts, val, val, val));
 }

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2020 Nikola Kolev
  * Copyright (c) 2002-2006 Daniel Hartmeier
+ * Copyright (c) 2013-2025 Nikola Kolev <koue@chaosophia.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
 #include "data.h"
 #include "graph.h"
 
-extern int add_col(unsigned nr, const char *arg, int diff);
+extern int add_col(unsigned nr, const char *arg, int tdiff, int vdiff);
 
 static const char *infile = NULL;
 static struct matrix **matrices = NULL;
@@ -82,7 +82,8 @@ typedef struct {
 			int		 type;
 			char		*arg;
 			int		 idx;
-			int		 diff;
+			int		 tdiff;
+			int		 vdiff;
 		}			 col;
 	} v;
 	int lineno;
@@ -92,7 +93,7 @@ typedef struct {
 
 %token	ERROR IMAGE TIME MINUTES HOURS DAYS WEEKS MONTHS YEARS TO NOW
 %token	WIDTH HEIGHT LEFT RIGHT GRAPH COLOR FILLED TYPE PNG
-%token	COLLECT DIFF BPS AVG MIN MAX
+%token	COLLECT TDIFF VDIFF BPS AVG MIN MAX
 %token	<v.string>	STRING
 %token	<v.number>	NUMBER
 %type	<v.time>	timerange
@@ -100,7 +101,7 @@ typedef struct {
 %type	<v.number>	type
 %type	<v.side>	left right
 %type	<v.graph>	graph_item graph_list
-%type	<v.number>	time filled diff bps avg
+%type	<v.number>	time filled tdiff vdiff bps avg
 %%
 
 configuration	: /* empty */
@@ -109,17 +110,21 @@ configuration	: /* empty */
 		| configuration error		{ errors++; }
 		;
 
-collect		: COLLECT NUMBER '=' STRING diff
+collect		: COLLECT NUMBER '=' STRING tdiff vdiff
 		{
-			if (add_col($2, $4, $5)) {
+			if (add_col($2, $4, $5, $6)) {
 				yyerror("add_col() failed");
 				YYERROR;
 			}
 		}
 		;
 
-diff		: /* empty */		{ $$ = 0; }
-		| DIFF			{ $$ = 1; }
+tdiff		: /* empty */		{ $$ = 0; }
+		| TDIFF			{ $$ = 1; }
+		;
+
+vdiff		: /* empty */		{ $$ = 0; }
+		| VDIFF			{ $$ = 1; }
 		;
 
 image		: IMAGE STRING '{' timerange type size left right '}'
@@ -296,7 +301,6 @@ lookup(char *s)
 		{ "collect",	COLLECT },
 		{ "color",	COLOR },
 		{ "days",	DAYS },
-		{ "diff",	DIFF },
 		{ "filled",	FILLED },
 		{ "from",	TIME },
 		{ "graph",	GRAPH },
@@ -311,8 +315,10 @@ lookup(char *s)
 		{ "now",	NOW },
 		{ "png",	PNG },
 		{ "right",	RIGHT },
+		{ "tdiff",	TDIFF },
 		{ "to",		TO },
 		{ "type",	TYPE },
+		{ "vdiff",	VDIFF },
 		{ "weeks",	WEEKS },
 		{ "width",	WIDTH },
 		{ "years",	YEARS },
