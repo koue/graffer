@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2002-2010, Daniel Hartmeier
  * Copyright (c) 2013-2025, Nikola Kolev <koue@chaosophia.net>
+ * Copyright (c) 2002-2010, Daniel Hartmeier
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@
 #include <netinet/in.h>
 #include <net/if.h>
 #include <arpa/inet.h>
+#include <dirent.h>
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -85,8 +86,8 @@ add_col(unsigned nr, const char *arg, int tdiff, int vdiff)
 }
 
 double
-value_query(const char *arg) {
-	
+value_query(const char *arg)
+{
 	char query_path[256], result[256], *end;
 	FILE *fp;
 
@@ -118,7 +119,7 @@ usage(void)
 {
 	extern char *__progname;
 
-	fprintf(stderr, "usage: %s [-v] [-c config] [-d data] "
+	fprintf(stderr, "usage: %s [-v] [-c config | -C configdir] [-d data] "
 	    "[-p] [-q] [-t days[:days]] [-f file]\n", __progname);
 	exit(1);
 }
@@ -127,17 +128,23 @@ int
 main(int argc, char *argv[])
 {
 	const char *configfn = "/etc/graffer/graffer.conf";
+	const char *configdir = NULL;
 	const char *datafn = "/var/db/graffer.db";
 	const char *fixfn = NULL;
 	int ch, query = 0, draw = 0, trunc = 0, i;
 	int days[2] = { 31, 365 };
 	struct matrix *matrices = NULL, *m;
 	struct graph *g;
+	DIR *dirp;
+	struct dirent *dp;
 
-	while ((ch = getopt(argc, argv, "c:d:f:pqt:v")) != -1) {
+	while ((ch = getopt(argc, argv, "cC:d:f:pqt:v")) != -1) {
 		switch (ch) {
 		case 'c':
 			configfn = optarg;
+			break;
+		case 'C':
+			configdir = optarg;
 			break;
 		case 'd':
 			datafn = optarg;
@@ -183,8 +190,24 @@ main(int argc, char *argv[])
 	if (!query && !draw && !trunc && !fixfn)
 		usage();
 
-	if (parse_config(configfn, &matrices))
-		return (1);
+	if (configdir != NULL) {
+		if ((dirp = opendir(configdir)) == NULL)
+			return (1);
+		while ((dp = readdir(dirp)) != NULL) {
+			char path[8192];
+			if (dp->d_type != DT_REG)
+				continue;
+			snprintf(path, sizeof(path), "%s/%s", configdir, dp->d_name);
+			if (parse_config(path, &matrices)) {
+				closedir(dirp);
+				return (1);
+			}
+		}
+		closedir(dirp);
+	} else {
+		if (parse_config(configfn, &matrices))
+			return (1);
+	}
 
 	if (data_open(datafn))
 		return (1);

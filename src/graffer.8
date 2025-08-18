@@ -1,6 +1,6 @@
 .\"
-.\" Copyright (c) 2002-2010 Daniel Hartmeier
 .\" Copyright (c) 2013-2025 Nikola Kolev <koue@chaosophia.net>
+.\" Copyright (c) 2002-2010 Daniel Hartmeier
 .\" All rights reserved.
 .\"
 .\" Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 .\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 .\" POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd April 2, 2013
+.Dd August 16, 2025
 .Dt GRAFFER 8
 .Os
 .Sh NAME
@@ -36,6 +36,7 @@
 .Sh SYNOPSIS
 .Nm graffer
 .Op Fl c Ar config
+.Op Fl C Ar configdir
 .Op Fl d Ar database
 .Op Fl f Ar file
 .Op Fl q
@@ -112,7 +113,7 @@ Use the specified configuration file instead of the default /etc/graffer.conf.
 Syntax:
 .Bd -literal
 collect = "collect" number = coldef .
-coldef  = ( "path to external program" ) [ "tdiff" ] ["vdiff"].
+coldef  = ( "path to external program" ) [ "tdiff" | "vdiff"].
 image   = "image" filename "{"
               time type size [ left ] [ right ] "}" .
 time    = "from" number [ unit ] [ "to" number [ unit ] ] .
@@ -159,6 +160,9 @@ When the
 option is used, values are multiplied by eight, and the unit
 prefixes 'k' (kilo), 'm' (mega), etc. are multiples of 1024,
 instead of 1000.
+.It Fl C Ar configdir
+Config directory. Use all files from this directory instead of
+the default /etc/graffer.conf.
 .It Fl d Ar database
 Database file.
 Default is /var/db/graffer.db.
