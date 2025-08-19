@@ -197,6 +197,8 @@ main(int argc, char *argv[])
 			char path[8192];
 			if (dp->d_type != DT_REG)
 				continue;
+			if (dp->d_name[0] == '.')
+				continue;
 			snprintf(path, sizeof(path), "%s/%s", configdir, dp->d_name);
 			if (parse_config(path, &matrices)) {
 				closedir(dirp);
