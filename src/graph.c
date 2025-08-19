@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020 Nikola Kolev <koue@chaosophia.net>
- * Copyright (c) 2002-2006, Daniel Hartmeier
+ * Copyright (c) 2020-2025 Nikola Kolev <koue@chaosophia.net>
+ * Copyright (c) 2002-2006 Daniel Hartmeier
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -259,13 +259,18 @@ draw(gdImagePtr im, struct matrix *m, struct graph *g, int color,
 {
 	unsigned x = m->x0, y = m->y0, w = m->w0, h = m->h0;
 	unsigned dx, dy0 = 0;
+	int border = gdImageColorAllocate(im, 0, 64, 96);
 
 	for (dx = 0; dx < w; ++dx) {
 		unsigned dy = g->data[dx] * h;
 
-		if (filled)
+		if (filled) {
 			gdImageLine(im, x+dx+1, y+h-1, x+dx+1, y+h-1-dy,
 			    color);
+			if (dx > 0)
+				gdImageLine(im, x+dx, y+h-1-dy0, x+dx+1,
+				    y+h-1-dy, border);
+		}
 		else if (dx > 0)
 			gdImageLine(im, x+dx, y+h-1-dy0, x+dx+1, y+h-1-dy,
 			    color);
