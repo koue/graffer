@@ -1,15 +1,5 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 #ifndef _GDFONTS_H_
 #define _GDFONTS_H_ 1
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 /*
 	This is a header file for gd font, generated using
@@ -26,12 +16,4 @@ extern "C"
    BGD_EXPORT_DATA_PROT gdFontPtr gdFontSmall;
    BGD_DECLARE(gdFontPtr) gdFontGetSmall(void);
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif
-
-#ifdef __cplusplus
-}
 #endif
