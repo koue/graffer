@@ -115,11 +115,11 @@ Syntax:
 collect = "collect" number = coldef .
 coldef  = ( "path to external program" ) [ "tdiff" | "vdiff"].
 image   = "image" filename "{"
-              time type size [ left ] [ right ] "}" .
+              time theme size [ left ] [ right ] "}" .
 time    = "from" number [ unit ] [ "to" number [ unit ] ] .
 unit    = "minutes" | "hours" | "days" | "weeks" | "months" |
                       "years" .
-type	= "type" ( "png" ) .
+theme	= "theme" ( "white" | "black" ) .
 size    = "width" number "height" number .
 left    = "left" graphs .
 right   = "right" graphs .
@@ -182,6 +182,7 @@ collect 3 = "/etc/graffer/scripts/freebsd/netstat.sh rl0 in" tdiff
 collect 4 = "/etc/graffer/scripts/freebsd/disk.sh /dev/ad0 temp"
 image "/var/www/htdocs/rl0.png" {
 	from 12 months to now
+	theme black
 	width 800 height 200
 	left
 		graph 3 bps "states" "entries" color 200 0 0 filled,

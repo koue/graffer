@@ -39,6 +39,7 @@ image "/var/www/htdocs/sis0-day-small.png" {
 
 image "/var/www/htdocs/sis0-day-large.png" {
 	from 24 hours to now
+	theme black
 	width 980 height 300
 	left
 		graph 4 bps "in" "bits/s" color 0 192 0 filled,

@@ -56,7 +56,7 @@ void	 draw(gdImagePtr, struct matrix *, struct graph *, int, unsigned);
 void	 draw_grid(gdImagePtr, struct matrix *);
 
 int
-graph_add_matrix(struct matrix **matrices, const char *filename, unsigned type,
+graph_add_matrix(struct matrix **matrices, const char *filename, unsigned theme,
     unsigned width, unsigned height, unsigned beg, unsigned end)
 {
 	struct matrix *m;
@@ -70,7 +70,7 @@ graph_add_matrix(struct matrix **matrices, const char *filename, unsigned type,
 		err(1, "strdup");
 	m->beg = beg;
 	m->end = end;
-	m->type = type;
+	m->theme = theme;
 	m->width = width;
 	m->height = height;
 	m->w0 = width-fh-18*fw-2*fw;
@@ -131,7 +131,7 @@ graph_generate_images(struct matrix *matrices)
 	matrix = matrices;
 	while (matrix != NULL) {
 		gdImagePtr im;
-		int white;
+		int backcolor;
 		FILE *out;
 		struct matrix *old_matrix;
 		struct graph *graph, *old_graph;
@@ -159,10 +159,13 @@ graph_generate_images(struct matrix *matrices)
 		normalize(matrix);
 
 		im = gdImageCreate(matrix->width, matrix->height);
-		white = gdImageColorAllocate(im, 255, 255, 255);
+		if (matrix->theme == 0)
+			backcolor = gdImageColorAllocate(im, 255, 255, 255);
+		else
+			backcolor = gdImageColorAllocate(im, 0, 0, 0);
 
 		gdImageFilledRectangle(im, 0, 0, matrix->width-1,
-		    matrix->height-1, white);
+		    matrix->height-1, backcolor);
 
 		draw_grid(im, matrix);
 
@@ -194,11 +197,6 @@ graph_generate_images(struct matrix *matrices)
 			warn("%s", matrix->filename);
 			return (1);
 		}
-		/* disabled
-		if (matrix->type == 0)
-			gdImageJpeg(im, out, 95);
-		else
-		*/
 		gdImagePng(im, out);
 		fclose(out);
 		gdImageDestroy(im);
@@ -315,9 +313,13 @@ draw_grid(gdImagePtr im, struct matrix *matrix)
 	char k[2];
 	double dx;
 	char *t;
-	int black = gdImageColorAllocate(im,   0,   0,   0);
+	int frontcolor;
 	int grey = gdImageColorAllocate(im, 220, 220, 220);
 
+	if (matrix->theme == 0)
+		frontcolor = gdImageColorAllocate(im,   0,   0,   0);
+	else
+		frontcolor = gdImageColorAllocate(im, 255, 255, 255);
 	if (matrix->graphs[0] != NULL) {
 		max[0] = matrix->graphs[0]->data_max;
 		scale_unit(&max[0], &k[0], matrix->graphs[0]->bytes);
@@ -330,9 +332,9 @@ draw_grid(gdImagePtr im, struct matrix *matrix)
 	}
 
 	/* bounding box */
-	gdImageLine(im, x0, y0+h0, x0+w0, y0+h0, black);
-	gdImageLine(im, x0, y0, x0, y0+h0, black);
-	gdImageLine(im, x0+w0, y0, x0+w0, y0+h0, black);
+	gdImageLine(im, x0, y0+h0, x0+w0, y0+h0, frontcolor);
+	gdImageLine(im, x0, y0, x0, y0+h0, frontcolor);
+	gdImageLine(im, x0+w0, y0, x0+w0, y0+h0, frontcolor);
 
 	/* horizontal units */
 	ii = h0 / fh;
@@ -342,21 +344,21 @@ draw_grid(gdImagePtr im, struct matrix *matrix)
 		char t[10];
 		unsigned y1 = y0+(i*h0)/ii;
 
-		gdImageLine(im, x0-2, y1, x0, y1, black);
-		gdImageLine(im, x0+w0, y1, x0+w0+2, y1, black);
+		gdImageLine(im, x0-2, y1, x0, y1, frontcolor);
+		gdImageLine(im, x0+w0, y1, x0+w0+2, y1, frontcolor);
 		if (i < ii)
 			gdImageLine(im, x0+1, y1, x0+w0-1, y1, grey);
 		if (matrix->graphs[0] != NULL) {
 			snprintf(t, sizeof(t), "%5.1f %c",
 			    (max[0]*(ii-i))/ii, k[0]);
 			gdImageString(im, gdFontSmall, fh+fw,
-			    y1-fh/2, t, black);
+			    y1-fh/2, t, frontcolor);
 		}
 		if (matrix->graphs[1] != NULL) {
 			snprintf(t, sizeof(t), "%5.1f %c",
 			    (max[1]*(ii-i))/ii, k[1]);
 			gdImageString(im, gdFontSmall, x0+w0+1*fw,
-			    y1-fh/2, t, black);
+			    y1-fh/2, t, frontcolor);
 		}
 	}
 
@@ -384,27 +386,27 @@ draw_grid(gdImagePtr im, struct matrix *matrix)
 		unsigned x1 = x0+w0-(i*dx);
 		char t[64];
 
-		gdImageLine(im, x1, y0+h0, x1, y0+h0+2, black);
+		gdImageLine(im, x1, y0+h0, x1, y0+h0+2, frontcolor);
 		if (x1 > x0 && x1 < x0+w0)
 			gdImageLine(im, x1, y0+h0, x1, y0, grey);
 		if (x1 < x0+w0) {
 			snprintf(t, sizeof(t), "-%u", i);
 			gdImageString(im, gdFontSmall, x1-(strlen(t)*fw)/2,
-			    y0+h0+5, t, black);
+			    y0+h0+5, t, frontcolor);
 		} else {
 			time_t tt = time(0);
 			strncpy(t, asctime(localtime(&tt)), 24); t[24] = 0;
 			gdImageString(im, gdFontSmall, x0+(w0-strlen(t)*fw)/2,
-			    y0+h0+5+2*fh, t, black);
+			    y0+h0+5+2*fh, t, frontcolor);
 		}
 	}
 	/* hours/days/weeks/months */
-	gdImageString(im, gdFontSmall, x0+w0-strlen(t)*fw, y0+h0+5, t, black);
+	gdImageString(im, gdFontSmall, x0+w0-strlen(t)*fw, y0+h0+5, t, frontcolor);
 	if (matrix->graphs[0] != NULL)
 		gdImageStringUp(im, gdFontSmall, 0,
-		    y0+h0-(h0-strlen(unit[0])*fw)/2, (char *)unit[0], black);
+		    y0+h0-(h0-strlen(unit[0])*fw)/2, (char *)unit[0], frontcolor);
 	if (matrix->graphs[1] != NULL)
 		gdImageStringUp(im, gdFontSmall, x0+w0+8*fw,
-		    y0+h0-(h0-strlen(unit[1])*fw)/2, (char *)unit[1], black);
+		    y0+h0-(h0-strlen(unit[1])*fw)/2, (char *)unit[1], frontcolor);
 }
 

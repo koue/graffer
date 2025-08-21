@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2002-2006 Daniel Hartmeier
  * Copyright (c) 2013-2025 Nikola Kolev <koue@chaosophia.net>
+ * Copyright (c) 2002-2006 Daniel Hartmeier
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,7 +79,7 @@ typedef struct {
 		}			 side;
 		struct node_graph	*graph;
 		struct {
-			int		 type;
+			int		 theme;
 			char		*arg;
 			int		 idx;
 			int		 tdiff;
@@ -92,13 +92,13 @@ typedef struct {
 %}
 
 %token	ERROR IMAGE TIME MINUTES HOURS DAYS WEEKS MONTHS YEARS TO NOW
-%token	WIDTH HEIGHT LEFT RIGHT GRAPH COLOR FILLED TYPE PNG
+%token	WIDTH HEIGHT LEFT RIGHT GRAPH COLOR FILLED THEME WHITE BLACK
 %token	COLLECT TDIFF VDIFF BPS AVG MIN MAX
 %token	<v.string>	STRING
 %token	<v.number>	NUMBER
 %type	<v.time>	timerange
 %type	<v.size>	size
-%type	<v.number>	type
+%type	<v.number>	theme
 %type	<v.side>	left right
 %type	<v.graph>	graph_item graph_list
 %type	<v.number>	time filled tdiff vdiff bps avg
@@ -127,7 +127,7 @@ vdiff		: /* empty */		{ $$ = 0; }
 		| VDIFF			{ $$ = 1; }
 		;
 
-image		: IMAGE STRING '{' timerange type size left right '}'
+image		: IMAGE STRING '{' timerange theme size left right '}'
 		{
 			struct node_graph *g, *h;
 
@@ -214,8 +214,9 @@ size		: /* empty */			{
 		}
 		;
 
-type		: /* empty */			{ $$ = 0; }
-		| TYPE PNG 			{ $$ = 0; }
+theme		: /* empty */			{ $$ = 0; }
+		| THEME WHITE 			{ $$ = 0; }
+		| THEME BLACK			{ $$ = 1; }
 		;
 
 left		: /* empty */			{ $$.graph = NULL; }
@@ -297,6 +298,7 @@ lookup(char *s)
 	/* this has to be sorted always */
 	static const struct keywords keywords[] = {
 		{ "avg",	AVG },
+		{ "black",	BLACK },
 		{ "bps",	BPS },
 		{ "collect",	COLLECT },
 		{ "color",	COLOR },
@@ -313,13 +315,13 @@ lookup(char *s)
 		{ "minutes",	MINUTES },
 		{ "months",	MONTHS },
 		{ "now",	NOW },
-		{ "png",	PNG },
 		{ "right",	RIGHT },
 		{ "tdiff",	TDIFF },
+		{ "theme",	THEME },
 		{ "to",		TO },
-		{ "type",	TYPE },
 		{ "vdiff",	VDIFF },
 		{ "weeks",	WEEKS },
+		{ "white",	WHITE },
 		{ "width",	WIDTH },
 		{ "years",	YEARS },
 	};

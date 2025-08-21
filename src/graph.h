@@ -1,6 +1,5 @@
-/* $Id: graph.h,v 1.1.1.1 2007/01/11 16:01:58 dhartmei Exp $ */
-
 /*
+ * Copyright (c) 2025 Nikola Kolev <koue@chaosophia.net>
  * Copyright (c) 2002-2006 Daniel Hartmeier
  * All rights reserved.
  *
@@ -9,11 +8,11 @@
  * are met:
  *
  *    - Redistributions of source code must retain the above copyright
- *      notice, this list of conditions and the following disclaimer. 
+ *      notice, this list of conditions and the following disclaimer.
  *    - Redistributions in binary form must reproduce the above
  *      copyright notice, this list of conditions and the following
  *      disclaimer in the documentation and/or other materials provided
- *      with the distribution. 
+ *      with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -51,7 +50,7 @@ struct graph {
 struct matrix {
 	char		*filename;
 	unsigned	 beg, end;
-	unsigned	 type;
+	unsigned	 theme;
 	unsigned	 width, height;
 	unsigned	 w0, h0, x0, y0;
 	struct graph	*graphs[2];
