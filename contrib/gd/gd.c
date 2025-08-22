@@ -100,7 +100,6 @@ BGD_DECLARE(gdImagePtr) gdImageCreate (int sx, int sy)
   im->sx = sx;
   im->sy = sy;
   im->colorsTotal = 0;
-  im->interlace = 0;
   im->thick = 1;
   for (i = 0; (i < gdMaxColors); i++)
     {
@@ -109,7 +108,6 @@ BGD_DECLARE(gdImagePtr) gdImageCreate (int sx, int sy)
       im->green[i] = 0;
       im->blue[i] = 0;
     };
-  im->trueColor = 0;
   im->cx1 = 0;
   im->cy1 = 0;
   im->cx2 = im->sx - 1;
@@ -160,7 +158,6 @@ BGD_DECLARE(int) gdImageColorAllocateAlpha (gdImagePtr im, int r, int g, int b, 
   im->red[ct] = r;
   im->green[ct] = g;
   im->blue[ct] = b;
-  im->alpha[ct] = a;
   im->open[ct] = 0;
   return ct;
 }
@@ -239,18 +236,6 @@ BGD_DECLARE(void) gdImageSetPixel (gdImagePtr im, int x, int y, int color)
 	  im->pixels[y][x] = color;
 	}
       break;
-    }
-}
-
-BGD_DECLARE(int) gdImageGetPixel (gdImagePtr im, int x, int y)
-{
-  if (gdImageBoundsSafeMacro (im, x, y))
-    {
-      return im->pixels[y][x];
-    }
-  else
-    {
-      return 0;
     }
 }
 
@@ -582,77 +567,6 @@ BGD_DECLARE(void) gdImageStringUp (gdImagePtr im, gdFontPtr f,
       gdImageCharUp (im, f, x, y, s[i], color);
       y -= f->w;
     }
-}
-
-BGD_DECLARE(void) gdImageRectangle (gdImagePtr im, int x1, int y1, int x2, int y2, int color)
-{
-	int x1h = x1, x1v = x1, y1h = y1, y1v = y1, x2h = x2, x2v = x2, y2h = y2, y2v = y2;
-	int thick = im->thick;
-	int half1;
-	int t;
-
-	if (y2 < y1) {
-		t=y1;
-		y1 = y2;
-		y2 = t;
-
-		t = x1;
-		x1 = x2;
-		x2 = t;
-	}
-
-	x1h = x1; x1v = x1; y1h = y1; y1v = y1; x2h = x2; x2v = x2; y2h = y2; y2v = y2;
-	if (thick > 1) {
-		int cx, cy, x1ul, y1ul, x2lr, y2lr;
-		int half = thick >> 1;
-		half1 = thick - half;
-		x1ul = x1 - half;
-		y1ul = y1 - half;
-
-		x2lr = x2 + half;
-		y2lr = y2 + half;
-
-		cy = y1ul + thick;
-		while (cy-- > y1ul) {
-			cx = x1ul - 1;
-			while (cx++ < x2lr) {
-				gdImageSetPixel(im, cx, cy, color);
-			}
-		}
-
-		cy = y2lr - thick;
-		while (cy++ < y2lr) {
-			cx = x1ul - 1;
-			while (cx++ < x2lr) {
-				gdImageSetPixel(im, cx, cy, color);
-			}
-		}
-
-		cy = y1ul + thick - 1;
-		while (cy++ < y2lr -thick) {
-			cx = x1ul - 1;
-			while (cx++ < x1ul + thick) {
-				gdImageSetPixel(im, cx, cy, color);
-			}
-		}
-
-		cy = y1ul + thick - 1;
-		while (cy++ < y2lr -thick) {
-			cx = x2lr - thick - 1;
-			while (cx++ < x2lr) {
-				gdImageSetPixel(im, cx, cy, color);
-			}
-		}
-
-		return;
-	} else {
-		y1v = y1h + 1;
-		y2v = y2h - 1;
-		gdImageLine(im, x1h, y1h, x2h, y1h, color);
-		gdImageLine(im, x1h, y2h, x2h, y2h, color);
-		gdImageLine(im, x1v, y1v, x1v, y2v, color);
-		gdImageLine(im, x2v, y1v, x2v, y2v, color);
-	}
 }
 
 BGD_DECLARE(void) gdImageFilledRectangle (gdImagePtr im, int x1, int y1, int x2, int y2,

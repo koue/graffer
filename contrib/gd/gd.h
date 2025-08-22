@@ -24,18 +24,12 @@
     unsigned char **pixels;
     int sx;
     int sy;
-    /* These are valid in palette images only. See also
-       'alpha', which appears later in the structure to
-       preserve binary backwards compatibility */
     int colorsTotal;
     int red[gdMaxColors];
     int green[gdMaxColors];
     int blue[gdMaxColors];
     int open[gdMaxColors];
-    int interlace;
     int thick;
-    int alpha[gdMaxColors];
-    int trueColor;
 
     int cx1;
     int cy1;
@@ -74,14 +68,8 @@ BGD_DECLARE(void) gdImageDestroy (gdImagePtr im);
 
 BGD_DECLARE(void) gdImageSetPixel (gdImagePtr im, int x, int y, int color);
 
-BGD_DECLARE(int) gdImageGetPixel (gdImagePtr im, int x, int y);
-
 BGD_DECLARE(void) gdImageLine (gdImagePtr im, int x1, int y1, int x2, int y2, int color);
 
-/* Corners specified (not width and height). Upper left first, lower right
- 	second. */
-BGD_DECLARE(void) gdImageRectangle (gdImagePtr im, int x1, int y1, int x2, int y2,
-			 int color);
 /* Solid bar. Upper left corner first, lower right corner second. */
 BGD_DECLARE(void) gdImageFilledRectangle (gdImagePtr im, int x1, int y1, int x2, int y2,
 			       int color);
