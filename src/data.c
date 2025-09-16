@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2002-2010, Daniel Hartmeier
  * Copyright (c) 2025, Nikola Kolev <koue@chaosophia.net>
+ * Copyright (c) 2002-2010, Daniel Hartmeier
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -424,7 +424,7 @@ get_values_resample(unsigned beg, unsigned end, int type, unsigned siz,
 	unsigned j = (unsigned long long)(ts - beg) * siz / (end - beg);
 	double sa = (double)tt - (double)beg;
 	double sb = (double)ts - (double)beg;
-	double pa, f;   
+	double pa, f;
 
 	if (debug > 2)
 		printf("get_values_resample(beg %u, end %u, type %d, siz %u, "
@@ -457,7 +457,7 @@ get_values_resample(unsigned beg, unsigned end, int type, unsigned siz,
 
 int
 data_get_values(unsigned short unit, unsigned beg, unsigned end, int type,
-    unsigned siz, double *a)
+    unsigned siz, double *a, int console)
 {
 	double spp, d;
 	unsigned i, ts, tt = 0;
@@ -555,6 +555,78 @@ data_get_values(unsigned short unit, unsigned beg, unsigned end, int type,
 			printf("get_values: maximum (%u values) %.2f\n",
 			    siz, d);
 	}
+	if (console) {
+		double carray[siz];
+		double cprev = DBL_MAX, ptop = -DBL_MAX, ctop = -DBL_MAX;
+		double psum = 0, csum = 0;
+		int pregister = 0, cshow = 0;
+
+		// get max value
+		for (i = 0; i < siz; ++i)
+			if (a[i] > ptop)
+				ptop = a[i];
+
+		for(i = 0; i < siz; ++i)
+			carray[i] = 0; // set all to 0
+		for(i = 0; i < siz; ++i) {
+			if (debug) {
+				printf("%.2f ", a[i]); // print all values
+			}
+			if (a[i] != 0 && a[i] != cprev) {
+				// add if prevous value is different
+				carray[i] = a[i];
+				// increase values counter
+				pregister += 1;
+			}
+			// safe previous value for next iteration
+			cprev = a[i];
+		}
+		if (debug)
+			printf("\n");
+
+		// save values counter for next cycle
+		level = pregister;
+		pregister = 0;
+		// if less than 16 values print them
+		if (level < 16)
+			cshow = 1;
+		printf("queue: ");
+		for(i = 0; i < siz; ++i) {
+			if (carray[i] == 0)
+				continue;
+			if (debug) {
+				// print all values in debug mode
+				printf("%.2f ", carray[i]);
+			}
+			psum += carray[i];
+			pregister += 1;
+			// print last 16 values
+			if ((level - pregister) == 15)
+				cshow = 1;
+			if (cshow) {
+				printf("%.2f ", carray[i]);
+				if (carray[i] > ctop) {
+					// save current top, last 16
+					ctop = carray[i];
+				}
+				csum += carray[i];
+				cshow++; // increase to calculate 'csum'
+			}
+		}
+		if (pregister) {
+			printf("\n");
+			// period
+			printf("pavg: %.2f, pmax: %.2f\n", psum/pregister, ptop);
+			// current
+			printf("cavg: %.2f, cmax: %.2f\n", csum/cshow, ctop);
+		} else {
+			printf("0\n");
+			// period
+			printf("pavg: 0.00, pmax: 0.00\n");
+			// current
+			printf("cavg: 0.00, cmax: 0.00\n");
+		}
+	}
 	return (0);
 }
 
@@ -594,7 +666,7 @@ data_truncate(unsigned days_detail, unsigned days_compressed)
 	if (debug > 1)
 		printf("data_truncate: cutoff %u, %u\n", cutoff[0], cutoff[1]);
 	r = db->seq(db, &dbk, &dbd, R_FIRST);
-	if (r < 0) 
+	if (r < 0)
 		fprintf(stderr, "data_truncate: db->seq(R_FIRST) failed: %s\n",
 		    strerror(errno));
 	while (!r) {

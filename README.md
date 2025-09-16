@@ -12,5 +12,8 @@ make && make install
 
 ## Usage
 
-`graffer -q -c etc/graffer.conf.example`
-`graffer -p -c etc/graffer.conf.example`
+```
+$ graffer -q -c etc/graffer.conf.example
+$ graffer -p -c etc/graffer.conf.example
+$ graffer -g '7:from 24 hours to now' -c etc/graffer.conf.example
+```

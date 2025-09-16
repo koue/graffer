@@ -27,7 +27,7 @@
 .\" ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 .\" POSSIBILITY OF SUCH DAMAGE.
 .\"
-.Dd August 16, 2025
+.Dd September 16, 2025
 .Dt GRAFFER 8
 .Os
 .Sh NAME
@@ -39,6 +39,7 @@
 .Op Fl C Ar configdir
 .Op Fl d Ar database
 .Op Fl f Ar file
+.Op Fl g Ar number:timeframe
 .Op Fl q
 .Op Fl p
 .Op Fl t days[:days]
@@ -65,6 +66,17 @@ will grow continually.
 .It Fl p
 Produce the configured set of graph images based on the statistics
 collected beforehand.
+.It Fl g Ar number:timeframe
+Get stored values from the database for collect number according to
+the time frame and print them to stdout. Shows queue with last 16
+or less calculated records, time frame maximum value, time frame average value,
+current maximum value and current average value according to the queue.
+Examples:
+.Bd -literal
+graffer -c /etc/graffer.conf -g '7:from 3 hours to now'
+graffer -c /etc/graffer.conf -g '12:from 50 minutes to 30 minutes'
+graffer -c /etc/graffer.conf -g '23:from 52 weeks to 40 weeks'
+.Ed
 .It Fl t Ar days:[days]
 Truncate the database, removing entries older than the specified number
 of days.

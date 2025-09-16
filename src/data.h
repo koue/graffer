@@ -1,8 +1,8 @@
 /* $Id: data.h,v 1.2 2010/05/27 10:22:38 dhartmei Exp $ */
 
 /*
- * Copyright (c) 2002-2010 Daniel Hartmeier
  * Copyright (c) 2025 Nikola Kolev <koue@chaosophia.net>
+ * Copyright (c) 2002-2010 Daniel Hartmeier
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ int	 data_close();
 int	 data_put_value(unsigned since, unsigned ts, unsigned short unit,
 	    double val, int tdiff, int vdiff);
 int	 data_get_values(unsigned short unit, unsigned beg, unsigned end,
-	    int type, unsigned siz, double *a);
+	    int type, unsigned siz, double *a, int console);
 int	 data_truncate(unsigned days_detail, unsigned days_compressed);
 int	 data_copy(const char *filename);
 

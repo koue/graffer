@@ -119,8 +119,9 @@ usage(void)
 {
 	extern char *__progname;
 
-	fprintf(stderr, "usage: %s [-v] [-c config | -C configdir] [-d data] "
-	    "[-p] [-q] [-t days[:days]] [-f file]\n", __progname);
+	fprintf(stderr, "usage: %s [-v] [-c config ] [ -C configdir ] "
+	    "[-d data] [ -g number:timeframe ] [-p] [-q] [-t days[:days]] "
+	    "[-f file]\n", __progname);
 	exit(1);
 }
 
@@ -131,14 +132,17 @@ main(int argc, char *argv[])
 	const char *configdir = NULL;
 	const char *datafn = "/var/db/graffer.db";
 	const char *fixfn = NULL;
-	int ch, query = 0, draw = 0, trunc = 0, i;
+	const char *getconf = "/tmp/.graffer.conf.temp";
+	const char *getpng = "/tmp/.graffer.png.temp";
+	FILE *fpget;
+	int ch, get = 0, query = 0, draw = 0, trunc = 0, i, colnum;
 	int days[2] = { 31, 365 };
 	struct matrix *matrices = NULL, *m;
 	struct graph *g;
 	DIR *dirp;
 	struct dirent *dp;
 
-	while ((ch = getopt(argc, argv, "cC:d:f:pqt:v")) != -1) {
+	while ((ch = getopt(argc, argv, "c:C:d:f:g:pqt:v")) != -1) {
 		switch (ch) {
 		case 'c':
 			configfn = optarg;
@@ -152,6 +156,41 @@ main(int argc, char *argv[])
 		case 'f':
 			fixfn = optarg;
 			break;
+		case 'g': {
+			char *o, *p;
+			o = strdup(optarg);
+			if (!o) {
+				fprintf(stderr, "main: strdup: %s\n",
+				    strerror(errno));
+				return (1);
+			}
+			p = strchr(o, ':');
+			if (p != NULL) {
+				*p = 0;
+				p += 1; // after ':'
+			} else {
+				fprintf(stderr, "wrong get query: %s\n", o);
+				usage();
+			}
+			colnum = atoi(o);
+			if (colnum <= 0) {
+				fprintf(stderr, "wrong get number: %d\n",
+				    colnum);
+				usage();
+			}
+			if ((fpget = fopen(getconf, "w")) == NULL) {
+				fprintf(stderr, "main: fopen fail\n");
+				return (1);
+			}
+			fprintf(fpget, "image \"%s\" {\n", getpng);
+			fprintf(fpget, "	%s\n", p);
+			fprintf(fpget, "	left\n");
+			fprintf(fpget, "		graph %d \"x\" \"y\" "
+			    "color 0 0 0\n}\n", colnum);
+			fclose(fpget);
+			get = 1;
+			break;
+		}
 		case 'p':
 			draw = 1;
 			break;
@@ -187,7 +226,7 @@ main(int argc, char *argv[])
 	}
 	if (argc != optind)
 		usage();
-	if (!query && !draw && !trunc && !fixfn)
+	if (!get && !query && !draw && !trunc && !fixfn)
 		usage();
 
 	if (configdir != NULL) {
@@ -199,7 +238,8 @@ main(int argc, char *argv[])
 				continue;
 			if (dp->d_name[0] == '.')
 				continue;
-			snprintf(path, sizeof(path), "%s/%s", configdir, dp->d_name);
+			snprintf(path, sizeof(path), "%s/%s", configdir,
+			    dp->d_name);
 			if (parse_config(path, &matrices)) {
 				closedir(dirp);
 				return (1);
@@ -211,11 +251,32 @@ main(int argc, char *argv[])
 			return (1);
 	}
 
+	if (get) {
+		if (parse_config(getconf, &matrices))
+			return (1);
+	}
+
 	if (data_open(datafn))
 		return (1);
 
-	if (trunc) {
+	if (get) {
+		if (debug)
+			printf("get values\n");
+		for (m = matrices; m != NULL; m = m->next)
+			if (strcmp(m->filename, getpng) == 0)
+				break;
+		g = m->graphs[0]; // single graph, left (0)
+		if (debug)
+			printf("fetching values for unit %u from database\n",
+			    g->desc_nr);
+		if (data_get_values(g->desc_nr, m->beg, m->end, g->type,
+		    m->w0, g->data, 1)) {
+			fprintf(stderr, "main: data_get_values() failed\n");
+			return (1);
+		}
+	}
 
+	if (trunc) {
 		if (debug)
 			printf("truncating database\n");
 		if (data_truncate(days[0], days[1])) {
@@ -226,13 +287,13 @@ main(int argc, char *argv[])
 	}
 
 	if (query) {
-
 		if (debug)
 			printf("querying values\n");
 
 		for (i = 0; i < maxcol; ++i) {
 			if (debug)
-				printf("set_col(%d, %s, %lf)\n", cols[i].nr, cols[i].arg,  value_query(cols[i].arg));
+				printf("set_col(%d, %s, %lf)\n", cols[i].nr,
+				    cols[i].arg,  value_query(cols[i].arg));
 			set_col(cols[i].nr, value_query(cols[i].arg));
 		}
 
@@ -249,7 +310,6 @@ main(int argc, char *argv[])
 	}
 
 	if (draw) {
-
 		if (debug)
 			printf("generating images\n");
 		for (m = matrices; m != NULL; m = m->next)
@@ -260,7 +320,7 @@ main(int argc, char *argv[])
 						    "unit %u from database\n",
 						    g->desc_nr);
 					if (data_get_values(g->desc_nr, m->beg,
-					    m->end, g->type, m->w0, g->data)) {
+					    m->end, g->type, m->w0, g->data, 0)) {
 						fprintf(stderr, "main: "
 						    "data_get_values() "
 						    "failed\n");
