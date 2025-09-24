@@ -44,10 +44,13 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "pool.h"
 #include "data.h"
 #include "graph.h"
 
 extern int	 parse_config(const char *, struct matrix **);
+
+struct pool *pool;
 
 struct col {
 	unsigned	 nr;
@@ -122,6 +125,7 @@ usage(void)
 	fprintf(stderr, "usage: %s [-v] [-c config ] [ -C configdir ] "
 	    "[-d data] [ -g number:timeframe ] [-p] [-q] [-t days[:days]] "
 	    "[-f file]\n", __progname);
+	pool_free(pool);
 	exit(1);
 }
 
@@ -142,6 +146,7 @@ main(int argc, char *argv[])
 	DIR *dirp;
 	struct dirent *dp;
 
+	pool = pool_create(1024);
 	while ((ch = getopt(argc, argv, "c:C:d:f:g:pqt:v")) != -1) {
 		switch (ch) {
 		case 'c':
@@ -158,11 +163,11 @@ main(int argc, char *argv[])
 			break;
 		case 'g': {
 			char *o, *p;
-			o = strdup(optarg);
+			o = pool_strdup(pool, optarg);
 			if (!o) {
-				fprintf(stderr, "main: strdup: %s\n",
+				fprintf(stderr, "main: pool_strdup: %s\n",
 				    strerror(errno));
-				return (1);
+				goto fail;
 			}
 			p = strchr(o, ':');
 			if (p != NULL) {
@@ -180,7 +185,7 @@ main(int argc, char *argv[])
 			}
 			if ((fpget = fopen(getconf, "w")) == NULL) {
 				fprintf(stderr, "main: fopen fail\n");
-				return (1);
+				goto fail;
 			}
 			fprintf(fpget, "image \"%s\" {\n", getpng);
 			fprintf(fpget, "	%s\n", p);
@@ -200,11 +205,11 @@ main(int argc, char *argv[])
 		case 't': {
 			char *o, *p;
 
-			o = strdup(optarg);
+			o = pool_strdup(pool, optarg);
 			if (!o) {
-				fprintf(stderr, "main: strdup: %s\n",
+				fprintf(stderr, "main: pool_strdup: %s\n",
 				    strerror(errno));
-				return (1);
+				goto fail;
 			}
 			p = strchr(o, ':');
 			if (p != NULL) {
@@ -231,7 +236,7 @@ main(int argc, char *argv[])
 
 	if (configdir != NULL) {
 		if ((dirp = opendir(configdir)) == NULL)
-			return (1);
+			goto fail;
 		while ((dp = readdir(dirp)) != NULL) {
 			char path[8192];
 			if (dp->d_type != DT_REG)
@@ -242,22 +247,22 @@ main(int argc, char *argv[])
 			    dp->d_name);
 			if (parse_config(path, &matrices)) {
 				closedir(dirp);
-				return (1);
+				goto fail;
 			}
 		}
 		closedir(dirp);
 	} else {
 		if (parse_config(configfn, &matrices))
-			return (1);
+			goto fail;
 	}
 
 	if (get) {
 		if (parse_config(getconf, &matrices))
-			return (1);
+			goto fail;
 	}
 
 	if (data_open(datafn))
-		return (1);
+		goto fail;
 
 	if (get) {
 		if (debug)
@@ -272,7 +277,7 @@ main(int argc, char *argv[])
 		if (data_get_values(g->desc_nr, m->beg, m->end, g->type,
 		    m->w0, g->data, 1)) {
 			fprintf(stderr, "main: data_get_values() failed\n");
-			return (1);
+			goto dbfail;
 		}
 	}
 
@@ -281,7 +286,7 @@ main(int argc, char *argv[])
 			printf("truncating database\n");
 		if (data_truncate(days[0], days[1])) {
 			fprintf(stderr, "main: data_truncate() failed\n");
-			return (1);
+			goto dbfail;
 		}
 
 	}
@@ -304,7 +309,7 @@ main(int argc, char *argv[])
 			    cols[i].val, cols[i].tdiff, cols[i].vdiff)) {
 				fprintf(stderr, "main: data_put_value() "
 				    "failed\n");
-				return (1);
+				goto dbfail;
 			}
 
 	}
@@ -324,7 +329,7 @@ main(int argc, char *argv[])
 						fprintf(stderr, "main: "
 						    "data_get_values() "
 						    "failed\n");
-						return (1);
+						goto dbfail;
 					}
 				}
 		if (debug)
@@ -332,7 +337,7 @@ main(int argc, char *argv[])
 		if (graph_generate_images(matrices)) {
 			fprintf(stderr, "main: graph_generate_images() "
 			    "failed\n");
-			return (1);
+			goto dbfail;
 		}
 
 	}
@@ -342,10 +347,18 @@ main(int argc, char *argv[])
 			printf("fixing database %s to %s\n", datafn, fixfn);
 		if (data_copy(fixfn)) {
 			fprintf(stderr, "main: data_copy() failed\n");
-			return (1);
+			goto dbfail;
 		}
 	}
 
 	data_close();
+	pool_free(pool);
 	return (0);
+
+dbfail:
+	data_close();
+
+fail:
+	pool_free(pool);
+	return (1);
 }

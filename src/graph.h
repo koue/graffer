@@ -57,10 +57,10 @@ struct matrix {
 	struct matrix	*next;
 };
 
-int	 graph_add_matrix(struct matrix **, const char *, unsigned, unsigned,
-	    unsigned, unsigned, unsigned);
-int	 graph_add_graph(struct graph **, unsigned, unsigned, const char *,
-	    const char *, u_int32_t, int, int, int);
+int	 graph_add_matrix(struct pool *, struct matrix **, const char *,
+	    unsigned, unsigned, unsigned, unsigned, unsigned);
+int	 graph_add_graph(struct pool *, struct graph **, unsigned, unsigned,
+	    const char *, const char *, u_int32_t, int, int, int);
 int	 graph_generate_images(struct matrix *);
 
 #endif

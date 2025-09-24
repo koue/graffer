@@ -3,7 +3,7 @@ LOCALBASE?=	/usr/local
 
 PROG=		graffer
 
-SRCS=		graffer.c data.c graph.c parse.y
+SRCS=		graffer.c data.c graph.c parse.y pool.c
 
 .PATH:		${.CURDIR}/../contrib/gd
 SRCS+=		gd.c gd_io.c gdfonts.c gdhelpers.c gd_security.c \

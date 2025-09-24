@@ -42,10 +42,12 @@
 #include <string.h>
 #include <time.h>
 
+#include "pool.h"
 #include "data.h"
 #include "graph.h"
 
 extern int add_col(unsigned nr, const char *arg, int tdiff, int vdiff);
+extern struct pool *pool;
 
 static const char *infile = NULL;
 static struct matrix **matrices = NULL;
@@ -129,37 +131,31 @@ vdiff		: /* empty */		{ $$ = 0; }
 
 image		: IMAGE STRING '{' timerange theme size left right '}'
 		{
-			struct node_graph *g, *h;
+			struct node_graph *g;
 
 			if ($7.graph == NULL && $8.graph == NULL) {
 				yyerror("neither left nor right graph defined");
 				YYERROR;
 			}
-			graph_add_matrix(matrices, $2, $5, $6.width, $6.height,
-			    $4.beg, $4.end);
+			graph_add_matrix(pool, matrices, $2, $5, $6.width,
+			    $6.height, $4.beg, $4.end);
 			g = $7.graph;
 			while (g != NULL) {
-				graph_add_graph(&(*matrices)->graphs[0],
+				graph_add_graph(pool, &(*matrices)->graphs[0],
 				    (*matrices)->w0, g->graph.desc_nr,
 				    g->graph.label, g->graph.unit,
 				    g->graph.color, g->graph.filled,
 				    g->graph.bytes, g->graph.type);
-				h = g;
 				g = g->next;
-				free(h->graph.label);
-				free(h);
 			}
 			g = $8.graph;
 			while (g != NULL) {
-				graph_add_graph(&(*matrices)->graphs[1],
+				graph_add_graph(pool, &(*matrices)->graphs[1],
 				    (*matrices)->w0, g->graph.desc_nr,
 				    g->graph.label, g->graph.unit,
 				    g->graph.color, g->graph.filled,
 				    g->graph.bytes, g->graph.type);
-				h = g;
 				g = g->next;
-				free(h->graph.label);
-				free(h);
 			}
 		}
 		;
@@ -233,14 +229,15 @@ graph_list	: graph_item			{ $$ = $1; }
 
 graph_item	: GRAPH NUMBER bps avg STRING STRING COLOR NUMBER NUMBER NUMBER filled
 		{
-			$$ = calloc(1, sizeof(struct node_graph));
+			$$ = pool_alloc(pool, sizeof(struct node_graph));
 			if ($$ == NULL)
-				err(1, "graph_item: calloc");
+				err(1, "graph_item: pool_alloc");
+			memset($$, 0, sizeof(struct node_graph));
 			$$->graph.desc_nr = $2;
 			$$->graph.bytes = $3;
 			$$->graph.type = $4;
-			$$->graph.label = strdup($5);
-			$$->graph.unit = strdup($6);
+			$$->graph.label = pool_strdup(pool, $5);
+			$$->graph.unit = pool_strdup(pool, $6);
 			if ($8 < 0 || $8 > 255 || $9 < 0 || $9 > 255 ||
 			    $10 < 0 || $10 > 255) {
 				yyerror("invalid color %d %d %d", $8, $9, $10);
@@ -451,9 +448,9 @@ yylex(void)
 			}
 			*p++ = (char)c;
 		}
-		yylval.v.string = strdup(buf);
+		yylval.v.string = pool_strdup(pool, buf);
 		if (yylval.v.string == NULL)
-			err(1, "yylex: strdup");
+			err(1, "yylex: pool_strdup");
 		return (STRING);
 	}
 
@@ -515,9 +512,9 @@ yylex(void)
 		lungetc(c, fin);
 		*p = '\0';
 		token = lookup(buf);
-		yylval.v.string = strdup(buf);
+		yylval.v.string = pool_strdup(pool, buf);
 		if (yylval.v.string == NULL)
-			err(1, "yylex: strdup");
+			err(1, "yylex: pool_strdup");
 		return (token);
 	}
 	if (c == EOF)

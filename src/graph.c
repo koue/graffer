@@ -45,6 +45,7 @@
 #include <gd.h>
 #include <gdfonts.h>
 
+#include "pool.h"
 #include "graph.h"
 
 extern int	 debug;
@@ -56,18 +57,20 @@ void	 draw(gdImagePtr, struct matrix *, struct graph *, int, unsigned);
 void	 draw_grid(gdImagePtr, struct matrix *);
 
 int
-graph_add_matrix(struct matrix **matrices, const char *filename, unsigned theme,
-    unsigned width, unsigned height, unsigned beg, unsigned end)
+graph_add_matrix(struct pool *pool, struct matrix **matrices,
+    const char *filename, unsigned theme, unsigned width, unsigned height,
+    unsigned beg, unsigned end)
 {
 	struct matrix *m;
 	const unsigned fw = gdFontSmall->w, fh = gdFontSmall->h;
 
-	m = malloc(sizeof(struct matrix));
+	m = pool_alloc(pool, sizeof(struct matrix));
 	if (m == NULL)
-		err(1, "malloc");
-	m->filename = strdup(filename);
+		err(1, "pool_alloc");
+	memset(m, 0, sizeof(struct matrix));
+	m->filename = pool_strdup(pool, filename);
 	if (m->filename == NULL)
-		err(1, "strdup");
+		err(1, "pool_strdup");
 	m->beg = beg;
 	m->end = end;
 	m->theme = theme;
@@ -87,30 +90,31 @@ graph_add_matrix(struct matrix **matrices, const char *filename, unsigned theme,
 }
 
 int
-graph_add_graph(struct graph **graphs, unsigned width, unsigned desc_nr,
-    const char *label, const char *unit, unsigned color, int filled,
-    int bytes, int type)
+graph_add_graph(struct pool *pool, struct graph **graphs, unsigned width,
+    unsigned desc_nr, const char *label, const char *unit, unsigned color,
+    int filled, int bytes, int type)
 {
 	unsigned i;
 	struct graph *g;
 
-	g = malloc(sizeof(struct graph));
+	g = pool_alloc(pool, sizeof(struct graph));
 	if (g == NULL)
-		err(1, "malloc");
-	g->unit = strdup(unit);
+		err(1, "pool_alloc");
+	memset(g, 0, sizeof(struct graph));
+	g->unit = pool_strdup(pool, unit);
 	if (g->unit == NULL)
-		err(1, "strdup");
+		err(1, "pool_strdup");
 	g->desc_nr = desc_nr;
-	g->label = strdup(label);
+	g->label = pool_strdup(pool, label);
 	if (g->label == NULL)
-		err(1, "strdup");
+		err(1, "pool_strdup");
 	g->color = color;
 	g->filled = filled;
 	g->bytes = bytes;
 	g->type = type;
-	g->data = malloc(width * sizeof(double));
+	g->data = pool_alloc(pool, width * sizeof(double));
 	if (g->data == NULL)
-		err(1, "graph_add_graph: malloc");
+		err(1, "graph_add_graph: pool_alloc");
 	for (i = 0; i < width; ++i)
 		g->data[i] = 0.0;
 	g->data_max = 0.0;
@@ -133,8 +137,7 @@ graph_generate_images(struct matrix *matrices)
 		gdImagePtr im;
 		int backcolor;
 		FILE *out;
-		struct matrix *old_matrix;
-		struct graph *graph, *old_graph;
+		struct graph *graph;
 		unsigned i, x;
 
 		if (debug > 0)
@@ -201,23 +204,7 @@ graph_generate_images(struct matrix *matrices)
 		fclose(out);
 		gdImageDestroy(im);
 
-		/* free matrix */
-		graph = matrix->graphs[0];
-		while (graph != NULL) {
-			old_graph = graph;
-			graph = graph->next;
-			free(old_graph);
-		}
-		graph = matrix->graphs[1];
-		while (graph != NULL) {
-			old_graph = graph;
-			graph = graph->next;
-			free(old_graph);
-		}
-		free(matrix->filename);
-		old_matrix = matrix;
 		matrix = matrix->next;
-		free(old_matrix);
 	}
 
 	return (0);
