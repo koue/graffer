@@ -1,7 +1,5 @@
 #include "gd.h"
-#include "gdhelpers.h"
 #include <stdlib.h>
-#include <string.h>
 
 void *
 gdCalloc (size_t nmemb, size_t size)

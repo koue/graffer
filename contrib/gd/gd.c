@@ -131,11 +131,6 @@ BGD_DECLARE(void) gdImageDestroy (gdImagePtr im)
 
 BGD_DECLARE(int) gdImageColorAllocate (gdImagePtr im, int r, int g, int b)
 {
-  return gdImageColorAllocateAlpha (im, r, g, b, gdAlphaOpaque);
-}
-
-BGD_DECLARE(int) gdImageColorAllocateAlpha (gdImagePtr im, int r, int g, int b, int a)
-{
   int i;
   int ct = (-1);
   for (i = 0; (i < (im->colorsTotal)); i++)

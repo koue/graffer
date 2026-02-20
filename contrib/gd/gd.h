@@ -16,7 +16,6 @@
 #include "gd_io.h"
 
 #define gdMaxColors 256
-#define gdAlphaOpaque 0
 
   typedef struct gdImageStruct
   {
@@ -84,7 +83,6 @@ BGD_DECLARE(void) gdImageStringUp (gdImagePtr im, gdFontPtr f, int x, int y,
 			unsigned char *s, int color);
 
 BGD_DECLARE(int) gdImageColorAllocate (gdImagePtr im, int r, int g, int b);
-BGD_DECLARE(int) gdImageColorAllocateAlpha (gdImagePtr im, int r, int g, int b, int a);
 
 BGD_DECLARE(void) gdImageColorDeallocate (gdImagePtr im, int color);
 
